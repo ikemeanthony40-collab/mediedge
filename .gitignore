@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.pyo
+backend/chroma_db/
+backend/reports/
+*.db
+*.sqlite3
+.env
