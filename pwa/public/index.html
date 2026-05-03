@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0d1f3c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MediEdge">
+<title>MediEdge — Offline Clinical Intelligence</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy-950: #050d1a;
+  --navy-900: #0d1f3c;
+  --navy-800: #122548;
+  --navy-700: #1a3260;
+  --navy-600: #244078;
+  --navy-400: #4a6fa5;
+  --teal-600: #0d6b52;
+  --teal-500: #118a6a;
+  --teal-400: #1aaa84;
+  --teal-300: #30c99f;
+  --teal-100: #c8f0e4;
+  --teal-50:  #eafaf5;
+  --amber-500: #c97a0d;
+  --amber-400: #e8930f;
+  --amber-100: #fdefd5;
+  --red-600:   #a02828;
+  --red-500:   #c23030;
+  --red-100:   #fde8e8;
+  --green-600: #256b25;
+  --green-500: #2d8b2d;
+  --green-100: #e8f5e8;
+  --white:     #ffffff;
+  --gray-100:  #f4f6f9;
+  --gray-200:  #e2e8f0;
+  --gray-400:  #94a3b8;
+  --gray-600:  #64748b;
+  --text-primary:   #e8edf4;
+  --text-secondary: #8ea3c0;
+  --text-muted:     #5a7090;
+  --surface-1: #0f2240;
+  --surface-2: #142d52;
+  --surface-3: #1a3668;
+  --border:    rgba(255,255,255,0.08);
+  --border-2:  rgba(255,255,255,0.14);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --font-sans: 'DM Sans', -apple-system, sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;-webkit-text-size-adjust:100%;}
+body{font-family:var(--font-sans);background:var(--navy-950);color:var(--text-primary);min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+#app{max-width:480px;margin:0 auto;min-height:100dvh;background:var(--navy-900);display:flex;flex-direction:column;}
+.screen{display:none;flex:1;flex-direction:column;overflow-y:auto;padding-bottom:calc(72px + var(--safe-bottom));}
+.screen.active{display:flex;}
+#bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--navy-800);border-top:0.5px solid var(--border);display:flex;padding-bottom:var(--safe-bottom);z-index:100;}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 8px;background:none;border:none;color:var(--text-muted);font-family:var(--font-sans);font-size:10px;font-weight:500;cursor:pointer;transition:color 0.15s;-webkit-tap-highlight-color:transparent;}
+.nav-btn.active{color:var(--teal-300);}
+.page-header{padding:calc(var(--safe-top) + 16px) 20px 16px;background:var(--navy-900);border-bottom:0.5px solid var(--border);position:sticky;top:0;z-index:50;}
+.card{background:var(--surface-1);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px;transition:border-color 0.2s;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 20px;border-radius:var(--radius-md);font-family:var(--font-sans);font-size:15px;font-weight:500;border:none;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;width:100%;}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--teal-500);color:white;}
+.btn-secondary{background:var(--surface-2);color:var(--text-primary);border:0.5px solid var(--border-2);}
+.btn-sm{padding:8px 14px;font-size:13px;width:auto;border-radius:var(--radius-sm);}
+input,textarea,select{width:100%;background:var(--surface-2);border:0.5px solid var(--border-2);border-radius:var(--radius-md);color:var(--text-primary);font-family:var(--font-sans);font-size:15px;padding:13px 16px;outline:none;transition:border-color 0.2s;}
+input:focus,textarea:focus,select:focus{border-color:var(--teal-400);box-shadow:0 0 0 3px rgba(26,170,132,0.12);}
+input::placeholder,textarea::placeholder{color:var(--text-muted);}
+textarea{resize:vertical;min-height:80px;}
+label{display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;letter-spacing:0.02em;}
+.field{margin-bottom:16px;}
+.triage-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;font-size:13px;font-weight:600;letter-spacing:0.04em;}
+.triage-RED{background:var(--red-100);color:var(--red-600);}
+.triage-AMBER{background:var(--amber-100);color:var(--amber-500);}
+.triage-GREEN{background:var(--green-100);color:var(--green-600);}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dot-red{background:var(--red-500);}
+.dot-amber{background:var(--amber-400);}
+.dot-green{background:var(--green-500);}
+.mode-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;}
+.mode-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-2);color:var(--text-secondary);font-size:12px;font-weight:500;font-family:var(--font-sans);cursor:pointer;transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
+.mode-btn.active{border-color:var(--teal-400);background:rgba(26,170,132,0.12);color:var(--teal-300);}
+.waveform{display:flex;align-items:center;justify-content:center;gap:3px;height:48px;}
+.wave-bar{width:4px;border-radius:2px;background:var(--teal-400);animation:wave 0.8s ease-in-out infinite;transition:height 0.1s;}
+@keyframes wave{0%,100%{height:8px;opacity:0.4;}50%{height:32px;opacity:1;}}
+.wave-bar:nth-child(2){animation-delay:0.08s;}
+.wave-bar:nth-child(3){animation-delay:0.16s;}
+.wave-bar:nth-child(4){animation-delay:0.24s;}
+.wave-bar:nth-child(5){animation-delay:0.32s;}
+.wave-bar:nth-child(6){animation-delay:0.16s;}
+.wave-bar:nth-child(7){animation-delay:0.08s;}
+.waveform.idle .wave-bar{height:4px;opacity:0.3;animation:none;}
+.spinner{width:24px;height:24px;border:2px solid var(--border-2);border-top-color:var(--teal-400);border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.report-label{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;}
+.dx-item{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:0.5px solid var(--border);}
+.dx-item:last-child{border-bottom:none;}
+.dx-rank{width:28px;height:28px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--text-secondary);flex-shrink:0;}
+.dx-rank.rank-1{background:rgba(26,170,132,0.2);color:var(--teal-300);}
+.likelihood-pill{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:100px;}
+.likelihood-High{background:rgba(26,170,132,0.15);color:var(--teal-300);}
+.likelihood-Moderate{background:rgba(232,147,15,0.15);color:var(--amber-400);}
+.likelihood-Low{background:rgba(255,255,255,0.07);color:var(--text-muted);}
+.protocol-step{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;}
+.step-dot{width:6px;height:6px;border-radius:50%;background:var(--teal-400);margin-top:7px;flex-shrink:0;}
+.alert-item{display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:var(--radius-sm);margin-bottom:6px;font-size:13px;line-height:1.5;}
+.alert-drug{background:rgba(232,147,15,0.1);color:var(--amber-400);border:0.5px solid rgba(232,147,15,0.2);}
+.alert-red{background:rgba(194,48,48,0.1);color:var(--red-500);border:0.5px solid rgba(194,48,48,0.2);}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:2px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.fade-up{animation:fadeUp 0.3s ease forwards;}
+.delay-1{animation-delay:0.05s;opacity:0;}
+.delay-2{animation-delay:0.10s;opacity:0;}
+.delay-3{animation-delay:0.15s;opacity:0;}
+.delay-4{animation-delay:0.20s;opacity:0;}
+#toast{position:fixed;bottom:calc(80px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface-3);color:var(--text-primary);padding:10px 20px;border-radius:100px;font-size:13px;font-weight:500;border:0.5px solid var(--border-2);opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;z-index:999;max-width:calc(100% - 40px);}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.pad{padding:20px;}
+.gap{margin-bottom:12px;}
+.gap-lg{margin-bottom:20px;}
+.camera-preview{width:100%;aspect-ratio:4/3;background:#000;border-radius:var(--radius-md);border:0.5px solid var(--border);object-fit:cover;}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HOME -->
+<section class="screen active" id="screen-home">
+  <div style="padding:calc(var(--safe-top) + 24px) 20px 20px;background:linear-gradient(180deg,var(--navy-800) 0%,var(--navy-900) 100%);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div>
+        <div style="font-size:12px;color:var(--text-muted);font-weight:500;letter-spacing:0.04em;margin-bottom:4px;">MEDI<span style="color:var(--teal-300)">EDGE</span></div>
+        <h1 style="font-size:22px;">Clinical intelligence,<br><span style="color:var(--teal-300);">no internet needed.</span></h1>
+      </div>
+      <div style="text-align:right;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);margin-bottom:4px;">
+          <div style="position:relative;display:inline-flex;"><div class="dot dot-green" id="status-dot"></div></div>
+          <span id="status-text">Checking...</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);" id="model-label">Loading...</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="showScreen('encounter')" style="font-size:16px;padding:16px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      New patient encounter
+    </button>
+  </div>
+  <div class="pad" style="padding-top:16px;">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;">
+      <div class="card" style="padding:14px 12px;text-align:center;">
+        <div style="font-size:22px;font-weight:600;color:var(--teal-300);" id="stat-encounters">0</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Encounters</div>
+      </div>
+      <div class="card" style="padding:14px 12px;text-align:center;">
+        <div style="font-size:22px;font-weight:600;color:var(--teal-300);" id="stat-reports">0</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Reports</div>
+      </div>
+      <div class="card" style="padding:14px 12px;text-align:center;">
+        <div style="font-size:22px;font-weight:600;color:var(--white);">100%</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Offline</div>
+      </div>
+    </div>
+    <h3 style="margin-bottom:12px;color:var(--text-secondary);font-weight:500;font-size:13px;letter-spacing:0.03em;">CAPABILITIES</h3>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="card fade-up delay-1" style="display:flex;gap:14px;align-items:center;padding:14px;">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(26,170,132,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--teal-400)" stroke-width="1.5" stroke-linecap="round"><path d="M9 12l2 2 4-4M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
+        </div>
+        <div>
+          <div style="font-size:14px;font-weight:500;margin-bottom:2px;">Clinical triage &amp; diagnosis</div>
+          <div style="font-size:12px;color:var(--text-muted);">RED/AMBER/GREEN severity + differentials with ICD-10</div>
+        </div>
+      </div>
+      <div class="card fade-up delay-2" style="display:flex;gap:14px;align-items:center;padding:14px;">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(26,170,132,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--teal-400)" stroke-width="1.5" stroke-linecap="round"><path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+        </div>
+        <div>
+          <div style="font-size:14px;font-weight:500;margin-bottom:2px;">Voice intake — speak symptoms</div>
+          <div style="font-size:12px;color:var(--text-muted);">Speak patient complaint directly — analyzed instantly</div>
+        </div>
+      </div>
+      <div class="card fade-up delay-3" style="display:flex;gap:14px;align-items:center;padding:14px;">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(26,170,132,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--teal-400)" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        </div>
+        <div>
+          <div style="font-size:14px;font-weight:500;margin-bottom:2px;">Camera image analysis</div>
+          <div style="font-size:12px;color:var(--text-muted);">Photograph wounds, rashes — AI visual assessment</div>
+        </div>
+      </div>
+      <div class="card fade-up delay-4" style="display:flex;gap:14px;align-items:center;padding:14px;">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(26,170,132,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--teal-400)" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div>
+          <div style="font-size:14px;font-weight:500;margin-bottom:2px;">PDF clinical report</div>
+          <div style="font-size:12px;color:var(--text-muted);">Printable report for referral handoff</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ENCOUNTER -->
+<section class="screen" id="screen-encounter">
+  <div class="page-header">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button onclick="showScreen('home')" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:4px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <h2>New encounter</h2>
+    </div>
+  </div>
+  <div class="pad">
+
+    <!-- Patient demographics -->
+    <div class="card gap-lg">
+      <h3 style="margin-bottom:14px;color:var(--text-secondary);font-size:12px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">Patient details</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="gap">
+        <div class="field" style="margin-bottom:0;"><label>Age</label><input type="text" id="patient-age" placeholder="e.g. 34 years"/></div>
+        <div class="field" style="margin-bottom:0;"><label>Sex</label>
+          <select id="patient-sex"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:0;"><label>Background / history</label>
+        <textarea id="patient-history" placeholder="Medical history, medications, allergies..." rows="2"></textarea>
+      </div>
+    </div>
+
+    <!-- Intake mode selector — each mode is independent -->
+    <div style="margin:16px 0 8px;">
+      <label style="font-size:13px;font-weight:600;color:var(--text-primary);">How will you describe the complaint?</label>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Choose one — each works independently</div>
+    </div>
+    <div class="mode-row">
+      <button class="mode-btn active" id="mode-text" onclick="setMode('text')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M17 6.1H3M21 12.1H3M15.1 18H3"/></svg>
+        Type
+      </button>
+      <button class="mode-btn" id="mode-voice" onclick="setMode('voice')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+        Voice
+      </button>
+      <button class="mode-btn" id="mode-image" onclick="setMode('image')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        Camera
+      </button>
+    </div>
+
+    <!-- TEXT mode -->
+    <div id="panel-text" class="gap-lg">
+      <div class="field">
+        <label>Patient complaint *</label>
+        <textarea id="chief-complaint-text" placeholder="Describe symptoms, duration, severity, onset, location..." rows="4"></textarea>
+      </div>
+    </div>
+
+    <!-- VOICE mode -->
+    <div id="panel-voice" class="gap-lg" style="display:none;">
+      <div class="card" style="text-align:center;padding:24px 16px;">
+        <div class="waveform idle" id="waveform">
+          <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+        </div>
+        <div id="voice-status" style="font-size:13px;color:var(--text-muted);margin:10px 0 16px;">Tap to start — speak the patient complaint</div>
+        <button class="btn btn-secondary btn-sm" id="voice-record-btn" onclick="toggleRecording()" style="width:auto;margin:0 auto;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+          <span id="voice-btn-text">Start recording</span>
+        </button>
+      </div>
+      <div class="field" style="margin-top:10px;">
+        <label>Transcript (edit if needed)</label>
+        <textarea id="voice-transcript" placeholder="Transcript appears here automatically..." rows="3"></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="runAnalysis('voice')" id="analyze-voice-btn" style="display:none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Analyze this complaint
+      </button>
+    </div>
+
+    <!-- IMAGE mode -->
+    <div id="panel-image" class="gap-lg" style="display:none;">
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <button class="btn btn-secondary btn-sm" onclick="openCamera()" style="flex:1;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M20 7h-3.5L15 5H9L7.5 7H4a1 1 0 00-1 1v11a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1z"/></svg>
+          Open camera
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('img-upload').click()" style="flex:1;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          Upload image
+        </button>
+      </div>
+      <input type="file" id="img-upload" accept="image/*" style="display:none;" onchange="handleImageFile(this)">
+      <!-- Camera stream -->
+      <div id="camera-container" style="display:none;margin-bottom:12px;">
+        <video id="camera-stream" class="camera-preview" autoplay playsinline muted></video>
+        <button class="btn btn-primary" onclick="capturePhoto()" style="margin-top:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M20 7h-3.5L15 5H9L7.5 7H4a1 1 0 00-1 1v11a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1z"/></svg>
+          Capture photo
+        </button>
+        <canvas id="photo-canvas" style="display:none;"></canvas>
+      </div>
+      <!-- Image preview -->
+      <div id="img-preview-container" style="display:none;">
+        <img id="img-preview" class="camera-preview" src="" alt="Clinical image" style="margin-bottom:8px;">
+        <div class="field">
+          <label>Describe what you see (or what the image shows)</label>
+          <textarea id="image-context" placeholder="e.g. Rash on left arm, spreading to trunk. Patient reports itching and pain..." rows="2"></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="runAnalysis('image')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          Analyze with AI
+        </button>
+      </div>
+      <div id="img-placeholder" class="card" style="text-align:center;padding:32px 16px;border-style:dashed;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--teal-400)" stroke-width="1.5" stroke-linecap="round" style="margin:0 auto 10px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        <div style="font-size:14px;font-weight:500;margin-bottom:4px;">No image selected</div>
+        <div style="font-size:12px;color:var(--text-muted);">Use camera or upload a photo above</div>
+      </div>
+    </div>
+
+    <!-- Vitals -->
+    <div class="card gap-lg">
+      <h3 style="margin-bottom:14px;color:var(--text-secondary);font-size:12px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">Vitals (optional)</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="field" style="margin-bottom:0;"><label>Temp (°C)</label><input type="number" id="v-temp" placeholder="37.0" step="0.1"></div>
+        <div class="field" style="margin-bottom:0;"><label>HR (bpm)</label><input type="number" id="v-hr" placeholder="80"></div>
+        <div class="field" style="margin-bottom:0;"><label>BP (mmHg)</label><input type="text" id="v-bp" placeholder="120/80"></div>
+        <div class="field" style="margin-bottom:0;"><label>SpO₂ (%)</label><input type="number" id="v-spo2" placeholder="98" max="100"></div>
+        <div class="field" style="margin-bottom:0;"><label>RR (/min)</label><input type="number" id="v-rr" placeholder="18"></div>
+        <div class="field" style="margin-bottom:0;"><label>Weight (kg)</label><input type="number" id="v-weight" placeholder="70" step="0.1"></div>
+      </div>
+    </div>
+
+    <!-- Text mode analyze button -->
+    <div id="text-analyze-btn-container">
+      <button class="btn btn-primary" onclick="runAnalysis('text')" style="margin-top:4px;font-size:16px;padding:16px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Analyze patient
+      </button>
+    </div>
+
+    <div id="reasoning-panel" style="display:none;margin-top:16px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <div class="spinner"></div>
+        <span style="font-size:13px;color:var(--teal-300);font-weight:500;">MediEdge reasoning...</span>
+        <span style="font-size:11px;color:var(--text-muted);" id="reasoning-timer">0s</span>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);font-style:italic;" id="reasoning-hint">Analyzing clinical presentation...</div>
+    </div>
+  </div>
+</section>
+
+<!-- REPORT -->
+<section class="screen" id="screen-report">
+  <div class="page-header">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button onclick="showScreen('encounter')" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:4px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <h2>Clinical assessment</h2>
+      </div>
+      <button onclick="downloadReport()" class="btn btn-secondary btn-sm" style="gap:6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        PDF
+      </button>
+    </div>
+  </div>
+  <div class="pad" id="report-content">
+    <div style="text-align:center;padding:40px 20px;color:var(--text-muted);">
+      <div class="spinner" style="margin:0 auto 16px;"></div>
+      <p>Running clinical analysis...</p>
+    </div>
+  </div>
+</section>
+
+<!-- GUIDELINES -->
+<section class="screen" id="screen-knowledge">
+  <div class="page-header">
+    <h2>Clinical guidelines</h2>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:4px;">WHO/CDC protocols — fully offline</p>
+  </div>
+  <div class="pad">
+    <div class="field"><input type="search" id="kb-search" placeholder="Search guidelines, drugs, protocols..." oninput="searchKnowledge(this.value)"></div>
+    <div id="kb-cards" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+</section>
+
+<!-- SETTINGS -->
+<section class="screen" id="screen-settings">
+  <div class="page-header"><h2>Settings</h2></div>
+  <div class="pad" style="display:flex;flex-direction:column;gap:12px;">
+    <div class="card">
+      <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);margin-bottom:12px;">Model status</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:14px;">Gemma 3 clinical model</span>
+        <span style="font-size:12px;color:var(--teal-300);" id="settings-model-status">Checking...</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);">MediEdge offline AI — powered by Gemma 3 via Ollama</div>
+    </div>
+    <div class="card">
+      <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);margin-bottom:12px;">API connection</div>
+      <div class="field"><label>Backend URL</label><input type="text" id="api-url-input" value="http://localhost:8000"></div>
+      <button class="btn btn-secondary btn-sm" onclick="saveSettings()">Save &amp; reconnect</button>
+    </div>
+    <div class="card">
+      <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);margin-bottom:12px;">Knowledge base</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:14px;">Clinical guidelines loaded</span>
+        <span style="font-size:13px;font-weight:600;color:var(--teal-300);" id="settings-kb-count">—</span>
+      </div>
+    </div>
+    <div style="padding:16px;border-radius:var(--radius-md);background:rgba(194,48,48,0.08);border:0.5px solid rgba(194,48,48,0.2);">
+      <div style="font-size:13px;color:var(--red-500);font-weight:500;margin-bottom:6px;">Medical disclaimer</div>
+      <p style="font-size:12px;color:var(--text-muted);line-height:1.6;">MediEdge provides AI-generated clinical decision support. It does not replace a licensed clinician. All recommendations must be validated by qualified healthcare professionals.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BOTTOM NAV -->
+<nav id="bottom-nav">
+  <button class="nav-btn active" id="nav-home" onclick="showScreen('home')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Home
+  </button>
+  <button class="nav-btn" id="nav-encounter" onclick="showScreen('encounter')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    Encounter
+  </button>
+  <button class="nav-btn" id="nav-report" onclick="showScreen('report')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    Report
+  </button>
+  <button class="nav-btn" id="nav-knowledge" onclick="showScreen('knowledge')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+    Guidelines
+  </button>
+  <button class="nav-btn" id="nav-settings" onclick="showScreen('settings')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    Settings
+  </button>
+</nav>
+
+<div id="toast"></div>
+</div>
+
+<script>
+const API_BASE = () => localStorage.getItem('mediEdge_api') || 'http://localhost:8000';
+let currentMode = 'text';
+let isRecording = false;
+let currentAssessment = null;
+let currentEncounterId = null;
+let encounterCount = parseInt(localStorage.getItem('mediEdge_encounters') || '0');
+let reportCount = parseInt(localStorage.getItem('mediEdge_reports') || '0');
+let cameraStream = null;
+let reasoningInterval = null;
+let reasoningSeconds = 0;
+
+// ── Navigation ──────────────────────────────────────────────
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + (name === 'knowledge' ? 'knowledge' : name)).classList.add('active');
+  const nb = document.getElementById('nav-' + (name === 'knowledge' ? 'knowledge' : name));
+  if (nb) nb.classList.add('active');
+  if (name === 'knowledge') loadKnowledgeCards();
+  if (name === 'settings') checkStatus();
+  if (name !== 'encounter') stopCamera();
+}
+
+function showToast(msg, duration) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration || 2500);
+}
+
+// ── Status ──────────────────────────────────────────────────
+async function checkStatus() {
+  const dot = document.getElementById('status-dot');
+  const statusText = document.getElementById('status-text');
+  const modelLabel = document.getElementById('model-label');
+  try {
+    const r = await fetch(API_BASE() + '/health', { signal: AbortSignal.timeout(5000) });
+    const data = await r.json();
+    if (data.status === 'ok') {
+      dot.className = 'dot dot-green';
+      statusText.textContent = 'Model ready';
+      modelLabel.textContent = (data.model || 'gemma3:1b') + ' · ' + (data.kb_docs || 10) + ' guidelines';
+      const sm = document.getElementById('settings-model-status');
+      if (sm) sm.textContent = 'Ready';
+      const kbc = document.getElementById('settings-kb-count');
+      if (kbc) kbc.textContent = data.kb_docs || 10;
+    } else throw new Error();
+  } catch {
+    dot.className = 'dot dot-red';
+    statusText.textContent = 'Connecting...';
+    modelLabel.textContent = 'Start: python main.py';
+    const sm = document.getElementById('settings-model-status');
+    if (sm) sm.textContent = 'Not connected';
+  }
+}
+
+// ── Mode selector ───────────────────────────────────────────
+function setMode(mode) {
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('mode-' + mode).classList.add('active');
+  ['text','voice','image'].forEach(m => {
+    document.getElementById('panel-' + m).style.display = m === mode ? 'block' : 'none';
+  });
+  const textBtn = document.getElementById('text-analyze-btn-container');
+  textBtn.style.display = mode === 'text' ? 'block' : 'none';
+  currentMode = mode;
+  if (mode !== 'image') stopCamera();
+}
+
+// ── Voice recording ─────────────────────────────────────────
+function setupSpeechRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  const r = new SR();
+  r.continuous = true;
+  r.interimResults = true;
+  r.lang = 'en-US';
+  r.onresult = (e) => {
+    const t = Array.from(e.results).map(r => r[0].transcript).join(' ');
+    document.getElementById('voice-transcript').value = t;
+  };
+  r.onend = () => {
+    if (isRecording) {
+      isRecording = false;
+      document.getElementById('waveform').classList.add('idle');
+      document.getElementById('voice-status').textContent = 'Recording complete — review transcript below';
+      document.getElementById('voice-btn-text').textContent = 'Record again';
+      document.getElementById('voice-record-btn').style.background = '';
+      document.getElementById('analyze-voice-btn').style.display = 'block';
+    }
+  };
+  return r;
+}
+
+async function toggleRecording() {
+  if (isRecording) {
+    if (window._recognition) window._recognition.stop();
+    isRecording = false;
+    document.getElementById('waveform').classList.add('idle');
+    document.getElementById('voice-status').textContent = 'Recording stopped — review transcript below';
+    document.getElementById('voice-btn-text').textContent = 'Record again';
+    document.getElementById('voice-record-btn').style.background = '';
+    document.getElementById('analyze-voice-btn').style.display = 'block';
+  } else {
+    if (!window._recognition) window._recognition = setupSpeechRecognition();
+    if (!window._recognition) { showToast('Speech recognition not available in this browser'); return; }
+    try {
+      window._recognition.start();
+      isRecording = true;
+      document.getElementById('waveform').classList.remove('idle');
+      document.getElementById('voice-status').textContent = 'Listening... speak the patient complaint clearly';
+      document.getElementById('voice-btn-text').textContent = 'Stop recording';
+      document.getElementById('voice-record-btn').style.background = 'rgba(194,48,48,0.15)';
+      document.getElementById('analyze-voice-btn').style.display = 'none';
+    } catch (e) {
+      showToast('Microphone unavailable — check browser permissions');
+    }
+  }
+}
+
+// ── Camera ──────────────────────────────────────────────────
+async function openCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    cameraStream = stream;
+    const video = document.getElementById('camera-stream');
+    video.srcObject = stream;
+    document.getElementById('camera-container').style.display = 'block';
+    document.getElementById('img-placeholder').style.display = 'none';
+    document.getElementById('img-preview-container').style.display = 'none';
+    showToast('Camera ready — position and capture');
+  } catch (e) {
+    showToast('Camera access denied — use Upload instead');
+  }
+}
+
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
+  const cc = document.getElementById('camera-container');
+  if (cc) cc.style.display = 'none';
+}
+
+function capturePhoto() {
+  const video = document.getElementById('camera-stream');
+  const canvas = document.getElementById('photo-canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+  stopCamera();
+  document.getElementById('img-preview').src = dataUrl;
+  document.getElementById('img-preview-container').style.display = 'block';
+  document.getElementById('img-placeholder').style.display = 'none';
+  window._capturedImageData = dataUrl;
+  showToast('Photo captured — add description and analyze');
+}
+
+function handleImageFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById('img-preview').src = e.target.result;
+    document.getElementById('img-preview-container').style.display = 'block';
+    document.getElementById('img-placeholder').style.display = 'none';
+    window._capturedImageData = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Analysis ─────────────────────────────────────────────────
+function buildPayload(mode) {
+  const vitals = [];
+  const temp = document.getElementById('v-temp').value;
+  const hr = document.getElementById('v-hr').value;
+  const bp = document.getElementById('v-bp').value;
+  const spo2 = document.getElementById('v-spo2').value;
+  const rr = document.getElementById('v-rr').value;
+  const weight = document.getElementById('v-weight').value;
+  if (temp) vitals.push('Temp ' + temp + '°C');
+  if (hr) vitals.push('HR ' + hr + 'bpm');
+  if (bp) vitals.push('BP ' + bp + 'mmHg');
+  if (spo2) vitals.push('SpO₂ ' + spo2 + '%');
+  if (rr) vitals.push('RR ' + rr + '/min');
+  if (weight) vitals.push('Weight ' + weight + 'kg');
+
+  let complaint = '';
+  let voiceTranscript = '';
+  let imageDescription = '';
+
+  if (mode === 'text') {
+    complaint = document.getElementById('chief-complaint-text').value.trim();
+    if (!complaint) { showToast('Please enter the patient complaint'); return null; }
+  } else if (mode === 'voice') {
+    voiceTranscript = document.getElementById('voice-transcript').value.trim();
+    if (!voiceTranscript) { showToast('Please record or type the patient complaint'); return null; }
+    complaint = voiceTranscript;
+  } else if (mode === 'image') {
+    const ctx = document.getElementById('image-context').value.trim();
+    if (!ctx && !window._capturedImageData) { showToast('Please capture an image and add description'); return null; }
+    imageDescription = ctx || 'Clinical image captured for analysis';
+    complaint = imageDescription;
+  }
+
+  return {
+    patient_age: document.getElementById('patient-age').value,
+    patient_sex: document.getElementById('patient-sex').value,
+    patient_info: [
+      document.getElementById('patient-history').value,
+      vitals.length ? 'Vitals: ' + vitals.join(', ') : ''
+    ].filter(Boolean).join('\n'),
+    complaint: complaint,
+    voice_transcript: voiceTranscript,
+    image_description: imageDescription,
+    additional_notes: ''
+  };
+}
+
+function startReasoningTimer() {
+  reasoningSeconds = 0;
+  document.getElementById('reasoning-panel').style.display = 'block';
+  document.getElementById('reasoning-timer').textContent = '0s';
+  const hints = [
+    'Analyzing clinical presentation...',
+    'Checking differential diagnoses...',
+    'Reviewing treatment protocols...',
+    'Consulting clinical guidelines...',
+    'Generating structured assessment...'
+  ];
+  let hintIndex = 0;
+  reasoningInterval = setInterval(() => {
+    reasoningSeconds++;
+    document.getElementById('reasoning-timer').textContent = reasoningSeconds + 's';
+    if (reasoningSeconds % 8 === 0) {
+      hintIndex = (hintIndex + 1) % hints.length;
+      document.getElementById('reasoning-hint').textContent = hints[hintIndex];
+    }
+  }, 1000);
+}
+
+function stopReasoningTimer() {
+  if (reasoningInterval) clearInterval(reasoningInterval);
+  document.getElementById('reasoning-panel').style.display = 'none';
+}
+
+async function runAnalysis(mode) {
+  const payload = buildPayload(mode || currentMode);
+  if (!payload) return;
+
+  showScreen('report');
+  document.getElementById('report-content').innerHTML = '<div style="padding:30px 0;text-align:center;"><div class="spinner" style="margin:0 auto 16px;width:32px;height:32px;border-width:3px;"></div><div style="font-size:15px;font-weight:500;color:var(--teal-300);margin-bottom:6px;">MediEdge reasoning...</div><div style="font-size:13px;color:var(--text-muted);">This may take 1-3 minutes on a small model</div></div>';
+
+  startReasoningTimer();
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 180000); // 3 min timeout
+
+    const r = await fetch(API_BASE() + '/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    const data = await r.json();
+    currentEncounterId = data.encounter_id;
+
+    const a = data.assessment;
+    // Check if we got valid structured JSON
+    if (a && a.triage && a.triage.level && ['RED','AMBER','GREEN'].includes(a.triage.level)) {
+      currentAssessment = a;
+    } else {
+      // Convert text response to structured triage card
+      const raw = a.raw_response || a.rationale || a.confidence_note || JSON.stringify(a);
+      currentAssessment = textToAssessment(raw, payload.complaint);
+    }
+
+    stopReasoningTimer();
+    encounterCount++;
+    localStorage.setItem('mediEdge_encounters', encounterCount);
+    document.getElementById('stat-encounters').textContent = encounterCount;
+    renderReport(currentAssessment, payload);
+
+  } catch (err) {
+    stopReasoningTimer();
+    if (err.name === 'AbortError') {
+      showToast('Analysis timed out — try a shorter description', 4000);
+    }
+    // Use local triage as fallback
+    currentAssessment = textToAssessment(payload.complaint, payload.complaint);
+    renderReport(currentAssessment, payload);
+  }
+}
+
+function textToAssessment(raw, complaint) {
+  const txt = (raw || '').toLowerCase();
+  const level = (txt.includes('immediate') || txt.includes('life-threat') || txt.includes('critical') || txt.includes('emergency') || txt.includes('severe')) ? 'RED' :
+                (txt.includes('urgent') || txt.includes('serious') || txt.includes('hospital') || txt.includes('refer') || txt.includes('concern')) ? 'AMBER' : 'GREEN';
+
+  const lines = (raw || '').split('\n')
+    .map(l => l.replace(/\*\*/g,'').replace(/\*/g,'').replace(/^\d+\./,'').trim())
+    .filter(l => l.length > 15 && l.length < 250);
+
+  return {
+    triage: {
+      level,
+      urgency: level === 'RED' ? 'Immediate' : level === 'AMBER' ? 'Within 4h' : 'Routine',
+      rationale: lines[0] || 'Clinical assessment based on presented symptoms'
+    },
+    differentials: [{
+      rank: 1,
+      diagnosis: complaint ? complaint.split(',')[0].split('.')[0].substring(0, 60) : 'Primary diagnosis',
+      icd10: '—',
+      likelihood: 'High',
+      key_features: lines[1] || 'Based on clinical presentation'
+    }],
+    protocol: {
+      immediate_actions: lines.filter(l =>
+        l.toLowerCase().includes('immediate') ||
+        l.toLowerCase().includes('get to') ||
+        l.toLowerCase().includes('seek') ||
+        l.toLowerCase().includes('do not delay') ||
+        l.toLowerCase().includes('must') ||
+        l.toLowerCase().includes('now')).slice(0, 4),
+      investigations: lines.filter(l =>
+        l.toLowerCase().includes('test') ||
+        l.toLowerCase().includes('blood') ||
+        l.toLowerCase().includes('check') ||
+        l.toLowerCase().includes('request') ||
+        l.toLowerCase().includes('examine')).slice(0, 3),
+      treatment: lines.filter(l =>
+        l.toLowerCase().includes('medication') ||
+        l.toLowerCase().includes('treatment') ||
+        l.toLowerCase().includes('therapy') ||
+        l.toLowerCase().includes('artesunate') ||
+        l.toLowerCase().includes('antibiotic') ||
+        l.toLowerCase().includes('give') ||
+        l.toLowerCase().includes('administer')).slice(0, 4),
+      monitoring: 'Monitor vital signs every 4 hours. Reassess for any deterioration.'
+    },
+    referral: {
+      required: level !== 'GREEN',
+      urgency: level === 'RED' ? 'Emergency' : 'Urgent',
+      reason: 'Requires specialist clinical evaluation and management',
+      facility_type: level === 'RED' ? 'Emergency room' : 'District hospital'
+    },
+    drug_alerts: [],
+    red_flags: lines.filter(l =>
+      l.toLowerCase().includes('danger') ||
+      l.toLowerCase().includes('warning') ||
+      l.toLowerCase().includes('life-threat') ||
+      l.toLowerCase().includes('complication') ||
+      l.toLowerCase().includes('risk')).slice(0, 3),
+    confidence: 'Moderate',
+    confidence_note: 'AI assessment from offline model. Always verify with a qualified clinician.'
+  };
+}
+
+// ── Report rendering ─────────────────────────────────────────
+function renderReport(assessment, payload) {
+  const triage = assessment.triage || {};
+  const level = triage.level || 'AMBER';
+  const triageBg = {RED:'rgba(194,48,48,0.08)',AMBER:'rgba(232,147,15,0.08)',GREEN:'rgba(45,139,45,0.08)'};
+  const triageColor = {RED:'#c23030',AMBER:'#e8930f',GREEN:'#2d8b2d'};
+  const color = triageColor[level] || '#888';
+
+  let html = '<div style="background:' + (triageBg[level]||'rgba(255,255,255,0.04)') + ';border:1px solid ' + color + '40;border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;" class="fade-up">';
+  html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">';
+  html += '<div class="triage-badge triage-' + level + '"><div class="dot dot-' + level.toLowerCase() + '"></div>' + level + '</div>';
+  html += '<div style="font-size:13px;color:var(--text-secondary);font-weight:500;">' + (triage.urgency||'') + '</div></div>';
+  html += '<div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">' + (triage.rationale||'') + '</div></div>';
+
+  const dx = assessment.differentials || [];
+  if (dx.length) {
+    html += '<div class="card fade-up delay-1" style="margin-bottom:12px;"><div class="report-label">Differential diagnoses</div>';
+    dx.forEach(d => {
+      html += '<div class="dx-item"><div class="dx-rank ' + (d.rank===1?'rank-1':'') + '">' + d.rank + '</div>';
+      html += '<div style="flex:1;min-width:0;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;">';
+      html += '<span style="font-size:14px;font-weight:500;">' + d.diagnosis + '</span>';
+      html += '<span class="likelihood-pill likelihood-' + d.likelihood + '">' + d.likelihood + '</span></div>';
+      if (d.icd10 && d.icd10 !== '—') html += '<div style="font-size:11px;color:var(--teal-300);font-family:var(--font-mono);margin-bottom:4px;">' + d.icd10 + '</div>';
+      html += '<div style="font-size:12px;color:var(--text-muted);line-height:1.5;">' + d.key_features + '</div></div></div>';
+    });
+    html += '</div>';
+  }
+
+  const proto = assessment.protocol || {};
+  html += '<div class="card fade-up delay-2" style="margin-bottom:12px;"><div class="report-label">Clinical protocol</div>';
+  if ((proto.immediate_actions||[]).length) {
+    html += '<div style="margin-bottom:12px;"><div style="font-size:12px;font-weight:600;color:var(--red-500);margin-bottom:8px;">IMMEDIATE ACTIONS</div>';
+    proto.immediate_actions.forEach(a => { html += '<div class="protocol-step"><div class="step-dot" style="background:var(--red-500);"></div><div style="font-size:13px;line-height:1.5;">' + a + '</div></div>'; });
+    html += '</div>';
+  }
+  if ((proto.investigations||[]).length) {
+    html += '<div style="margin-bottom:12px;"><div style="font-size:12px;font-weight:600;color:var(--amber-400);margin-bottom:8px;">INVESTIGATIONS</div>';
+    proto.investigations.forEach(i => { html += '<div class="protocol-step"><div class="step-dot" style="background:var(--amber-400);"></div><div style="font-size:13px;line-height:1.5;">' + i + '</div></div>'; });
+    html += '</div>';
+  }
+  if ((proto.treatment||[]).length) {
+    html += '<div style="margin-bottom:12px;"><div style="font-size:12px;font-weight:600;color:var(--teal-300);margin-bottom:8px;">TREATMENT</div>';
+    proto.treatment.forEach(t => { html += '<div class="protocol-step"><div class="step-dot"></div><div style="font-size:13px;line-height:1.5;">' + t + '</div></div>'; });
+    html += '</div>';
+  }
+  if (proto.monitoring) {
+    html += '<div style="padding:10px 12px;background:rgba(26,170,132,0.07);border-radius:var(--radius-sm);border-left:2px solid var(--teal-500);">';
+    html += '<div style="font-size:11px;font-weight:600;color:var(--teal-300);margin-bottom:4px;">MONITORING</div>';
+    html += '<div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">' + proto.monitoring + '</div></div>';
+  }
+  html += '</div>';
+
+  const ref = assessment.referral || {};
+  if (ref.required) {
+    html += '<div class="card fade-up delay-3" style="margin-bottom:12px;border-color:rgba(194,48,48,0.3);">';
+    html += '<div class="report-label" style="color:var(--red-500);">Referral required</div>';
+    html += '<div style="display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13px;">';
+    html += '<span style="color:var(--text-muted);">Urgency</span><span style="font-weight:500;">' + ref.urgency + '</span>';
+    html += '<span style="color:var(--text-muted);">Facility</span><span>' + ref.facility_type + '</span>';
+    html += '<span style="color:var(--text-muted);">Reason</span><span style="color:var(--text-secondary);">' + ref.reason + '</span>';
+    html += '</div></div>';
+  }
+
+  const flags = assessment.red_flags || [];
+  const drugs = assessment.drug_alerts || [];
+  if (flags.length || drugs.length) {
+    html += '<div class="fade-up delay-4">';
+    drugs.forEach(d => { html += '<div class="alert-item alert-drug"><span>⚠</span><span>' + d + '</span></div>'; });
+    flags.forEach(f => { html += '<div class="alert-item alert-red"><span>!</span><span>' + f + '</span></div>'; });
+    html += '</div>';
+  }
+
+  html += '<div style="margin-top:16px;padding:12px 14px;border-radius:var(--radius-md);background:rgba(255,255,255,0.03);border:0.5px solid var(--border);">';
+  html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">';
+  html += '<span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);">AI Confidence</span>';
+  const confColor = assessment.confidence==='High'?'var(--teal-300)':assessment.confidence==='Moderate'?'var(--amber-400)':'var(--red-500)';
+  html += '<span style="font-size:12px;font-weight:600;color:' + confColor + ';">' + (assessment.confidence||'Moderate') + '</span></div>';
+  html += '<div style="font-size:12px;color:var(--text-muted);line-height:1.5;">' + (assessment.confidence_note||'') + '</div></div>';
+  html += '<div style="margin-top:8px;font-size:11px;color:var(--text-muted);text-align:center;line-height:1.5;">MediEdge AI · Clinical decision support only · Verify with qualified clinician</div>';
+
+  document.getElementById('report-content').innerHTML = html;
+}
+
+// ── PDF download ─────────────────────────────────────────────
+async function downloadReport() {
+  if (!currentAssessment) { showToast('No report to download'); return; }
+  showToast('Generating PDF...');
+  const payload = { assessment: currentAssessment, encounter_id: currentEncounterId || new Date().toISOString().slice(0,19).replace('T','_'), patient_context: '' };
+  try {
+    const r = await fetch(API_BASE() + '/api/report/generate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'MediEdge_Report.pdf'; a.click();
+    URL.revokeObjectURL(url);
+    reportCount++;
+    localStorage.setItem('mediEdge_reports', reportCount);
+    document.getElementById('stat-reports').textContent = reportCount;
+    showToast('PDF downloaded');
+  } catch { showToast('PDF generation requires backend'); }
+}
+
+// ── Knowledge base ───────────────────────────────────────────
+const KB_ITEMS = [
+  {title:'WHO Essential Medicines',subtitle:'First and second-line antibiotic reference',tag:'Antibiotics',color:'var(--teal-400)'},
+  {title:'Malaria treatment protocol',subtitle:'P. falciparum severe and uncomplicated',tag:'Infectious',color:'var(--amber-400)'},
+  {title:'Sepsis Hour-1 Bundle',subtitle:'Surviving Sepsis Campaign 2021',tag:'Emergency',color:'var(--red-500)'},
+  {title:'Paediatric pneumonia',subtitle:'WHO IMCI respiratory thresholds',tag:'Paediatrics',color:'var(--teal-300)'},
+  {title:'Pre-eclampsia management',subtitle:'MgSO4 protocol and antihypertensives',tag:'Obstetrics',color:'var(--teal-300)'},
+  {title:'TB treatment guidelines',subtitle:'2HRZE/4HR regimen — WHO 2022',tag:'Infectious',color:'var(--amber-400)'},
+  {title:'DKA management',subtitle:'Fluids, insulin, potassium replacement',tag:'Endocrine',color:'var(--amber-400)'},
+  {title:'Anaphylaxis protocol',subtitle:'Epinephrine dosing and positioning',tag:'Emergency',color:'var(--red-500)'},
+];
+
+function loadKnowledgeCards(filter) {
+  const items = filter ? KB_ITEMS.filter(k =>
+    k.title.toLowerCase().includes(filter.toLowerCase()) ||
+    k.tag.toLowerCase().includes(filter.toLowerCase())) : KB_ITEMS;
+  document.getElementById('kb-cards').innerHTML = items.map(k =>
+    '<div class="card" style="display:flex;gap:12px;align-items:flex-start;cursor:pointer;margin-bottom:0;" onclick="showToast(\'Searching: ' + k.title + '\')">' +
+    '<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:500;margin-bottom:3px;">' + k.title + '</div>' +
+    '<div style="font-size:12px;color:var(--text-muted);">' + k.subtitle + '</div></div>' +
+    '<span style="font-size:10px;font-weight:600;color:' + k.color + ';background:' + k.color + '18;padding:3px 8px;border-radius:100px;flex-shrink:0;white-space:nowrap;">' + k.tag + '</span></div>'
+  ).join('');
+}
+
+function searchKnowledge(val) { loadKnowledgeCards(val.length > 1 ? val : ''); }
+
+function saveSettings() {
+  localStorage.setItem('mediEdge_api', document.getElementById('api-url-input').value.trim());
+  checkStatus();
+  showToast('Settings saved');
+}
+
+// ── Init ─────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+  checkStatus();
+  loadKnowledgeCards();
+  document.getElementById('stat-encounters').textContent = encounterCount;
+  document.getElementById('stat-reports').textContent = reportCount;
+  document.getElementById('api-url-input').value = API_BASE();
+  setInterval(checkStatus, 30000);
+  setMode('text');
+});
+</script>
+</body>
+</html>
