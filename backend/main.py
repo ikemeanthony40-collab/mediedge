@@ -37,7 +37,7 @@ app.add_middleware(
 )
 
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
-MODEL_NAME = os.getenv("MODEL_NAME", "gemma3:1b")
+MODEL_NAME = os.getenv("MODEL_NAME", "gemma3:4b")
 REPORTS_DIR = "reports"
 os.makedirs(REPORTS_DIR, exist_ok=True)
 
