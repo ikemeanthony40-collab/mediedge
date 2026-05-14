@@ -93,23 +93,31 @@ http://localhost:5500
 ---
 
 ## Clinical Knowledge Base
+MediEdge contains a built-in WHO/CDC clinical knowledge base 
+covering 15 high-burden conditions with complete treatment protocols:
 
-MediEdge contains a built-in WHO/CDC clinical knowledge base covering 10 high-burden conditions with complete treatment protocols:
+| Condition                              | ICD-10  | Triage |
+|----------------------------------------|---------|--------|
+| Plasmodium falciparum malaria (severe) | B50.9   | RED    |
+| Bacterial meningitis                   | A39.0   | RED    |
+| Pre-eclampsia with severe features     | O14.1   | RED    |
+| STEMI                                  | I21.0   | RED    |
+| Sepsis                                 | A41.9   | RED    |
+| Severe acute asthma                    | J46     | RED    |
+| Acute ischaemic stroke                 | I63.9   | RED    |
+| Major thermal burns                    | T31.2   | RED    |
+| Diabetic ketoacidosis                  | E11.10  | RED    |
+| Anaphylaxis                            | T78.2   | RED    |
+| Community-acquired pneumonia           | J18.9   | RED    |
+| Acute gastroenteritis with dehydration | A09     | AMBER  |
+| Typhoid fever                          | A01.0   | AMBER  |
+| Pulmonary tuberculosis                 | A15.0   | AMBER  |
+| Urinary tract infection                | N39.0   | AMBER  |
 
-| Condition | ICD-10 | Triage |
-|---|---|---|
-| Plasmodium falciparum malaria (severe) | B50.9 | RED |
-| Bacterial meningitis | G00.9 | RED |
-| Pre-eclampsia with severe features | O14.1 | RED |
-| STEMI | I21.0 | RED |
-| Sepsis | A41.9 | RED |
-| Community-acquired pneumonia | J18.9 | AMBER |
-| Acute gastroenteritis with dehydration | A09 | AMBER |
-| Typhoid fever | A01.0 | AMBER |
-| Pulmonary tuberculosis | A15.0 | AMBER |
-| Urinary tract infection | N39.0 | GREEN |
-
-Each condition includes immediate actions, investigations, treatment with drug dosages, monitoring parameters, referral criteria, drug alerts, and red flag warning signs — all sourced from WHO and CDC guidelines.
+Each condition includes immediate actions, investigations, treatment 
+with WHO Essential Medicine drug dosages, monitoring parameters, 
+referral criteria, drug alerts, and red flag warning signs — all 
+sourced from WHO and CDC guidelines.
 
 ---
 
